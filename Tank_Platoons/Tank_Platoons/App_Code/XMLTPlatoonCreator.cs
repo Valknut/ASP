@@ -167,6 +167,7 @@ namespace Tank_Platoons.App_Code
             {
                 _CreateRootElem(tank_platoon.id);
                 _AddDTD(this.dtdFile);
+                _AddPlatoonProperties(tank_platoon.name, tank_platoon.nation, tank_platoon.rating.ToString(), tank_platoon.win_rate.ToString());
                 _AddTropheys(tank_platoon.Tropheys.ToList());
                 _AddPlayers(tank_platoon.Players.ToList());
                 _Save();

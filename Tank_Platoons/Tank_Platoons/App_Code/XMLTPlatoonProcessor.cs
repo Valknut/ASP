@@ -65,6 +65,7 @@ namespace Tank_Platoons.App_Code
                         break;
                     case "league":
                         XmlNode leaguenode = xml.SelectSingleNode(TankPlatoonElements.TPLATOON_LEAGUE_XPATH);
+                        trophey.Leagues = new Leagues();
                         trophey.Leagues.id = _GetAttributeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH, TankPlatoonElements.TPLATOON_LEAGUE_ID);
                         trophey.Leagues.league_type = _GetAttributeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH, TankPlatoonElements.TPLATOON_LEAGUE_TYPE);
                         trophey.Leagues.league_country = _GetNodeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH + "/" + TankPlatoonElements.TPLATOON_LEAGUE_COUNTRY);
@@ -120,8 +121,10 @@ namespace Tank_Platoons.App_Code
                         break;
                     case "tank":
                         XmlNode tank_node = xml.SelectSingleNode(TankPlatoonElements.TPLATOON_TANK_XPATH);
+                        player.Tanks = new Tanks();
                         player.Tanks.id = _GetAttributeValue(tank_node,TankPlatoonElements.TPLATOON_TANK_XPATH, TankPlatoonElements.TPLATOON_TANK_ID);
                         player.Tanks.type = _GetAttributeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH, TankPlatoonElements.TPLATOON_TANK_TYPE);
+                        player.Tanks.Guns = new Guns();
                         player.Tanks.Guns.ammo_type = _GetAttributeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH, TankPlatoonElements.TPLATOON_AMMO_TYPE);
                         player.Tanks.Guns.gun_penetration = Int32.Parse(_GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_GUN_PENETRATION));
                         player.Tanks.tank_name = _GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_TANK_NAME);
@@ -147,7 +150,7 @@ namespace Tank_Platoons.App_Code
             }
         }
 
-        public bool LoadTPlatoonFromXML(string path)
+        public bool LoadTankPlatoonFromXML(string path)
         {
             try
             {
@@ -158,6 +161,7 @@ namespace Tank_Platoons.App_Code
 
                 _LoadXML(path);
                 _InitTankPlatoon();
+                _GetPlatoonProperties();
                 _GetTropheys();
                 _GetPlayers();
             }
@@ -178,6 +182,135 @@ namespace Tank_Platoons.App_Code
                 else throw new XMLTPlatoonProcessorException("You must first call the \"LoadTankPlatoonFromXML(string path)\"" +
                 " or \"LoadTankPlatoonFromXMLUsingReader(string path)\" method for your XMLTankPlatoonProcessor object!");
             }
+        }
+
+        public bool LoadTankPlatoonFromXMLUsingReader(string path)
+        {
+            this.path = path;
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.ValidationType = ValidationType.DTD;
+            settings.DtdProcessing = DtdProcessing.Parse;
+
+            Tank_Platoons tp = null;
+            Tropheys trophey = null;
+            Players player = null;
+
+            try
+            {
+                XmlReader reader = XmlReader.Create(path, settings);
+                while(reader.Read())
+                {
+                    if(reader.IsStartElement())
+                        switch(reader.Name)
+                        {
+                            case "tank_platoon":
+                                string id = reader.GetAttribute(TankPlatoonElements.TPLATOON_ID);
+                                tp = new Tank_Platoons();
+                                tp.id = id;
+                                break;
+                            case "name":
+                                tp.name = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "nation":
+                                tp.nation = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "rating":
+                                string rt = (string)reader.ReadElementContentAs(typeof(string), null);
+                                tp.rating = Int32.Parse(rt);
+                                break;
+                            case "trophey":
+                                trophey = new Tropheys();
+                                trophey.id = reader.GetAttribute(TankPlatoonElements.TPLATOON_TROPHEY_ID);
+                                break;
+                            case "year":
+                                trophey.year = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "place":
+                                trophey.place = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "league":
+                                trophey.Leagues = new Leagues();
+                                trophey.Leagues.id = reader.GetAttribute(TankPlatoonElements.TPLATOON_LEAGUE_ID);
+                                break;
+                            case "league_name":
+                                trophey.Leagues.league_type = reader.GetAttribute(TankPlatoonElements.TPLATOON_LEAGUE_TYPE);
+                                trophey.Leagues.league_name = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "league_country":
+                                trophey.Leagues.league_country = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "member":
+                                player = new Players();
+                                player.id = reader.GetAttribute(TankPlatoonElements.TPLATOON_MEMBER_ID);
+                                player.g_strat_pos = reader.GetAttribute(TankPlatoonElements.TPLATOON_MEMBER_STRAT_POS);
+                                player.gender = reader.GetAttribute(TankPlatoonElements.TPLATOON_MEMBER_GENDER);
+                                player.platoon_position = reader.GetAttribute(TankPlatoonElements.TPLATOON_MEMBER_PLATOON_POS);
+                                break;
+                            case "first_name":
+                                player.first_name = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "last_name":
+                                player.last_name = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "nickname":
+                                player.nickname = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "age":
+                                player.age = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "day":
+                                player.day = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "month":
+                                player.month = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "birth_year":
+                                player.birth_year = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "country":
+                                player.country = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "tank":
+                                player.Tanks = new Tanks();
+                                player.Tanks.id = reader.GetAttribute(TankPlatoonElements.TPLATOON_TANK_ID);
+                                player.Tanks.type = reader.GetAttribute(TankPlatoonElements.TPLATOON_TANK_TYPE);
+                                player.Tanks.Guns = new Guns();
+                                player.Tanks.Guns.ammo_type = reader.GetAttribute(TankPlatoonElements.TPLATOON_AMMO_TYPE);
+                                break;
+                            case "tier":
+                                player.Tanks.tier = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "tank_name":
+                                player.Tanks.tank_name = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "tank_nation":
+                                player.Tanks.tank_nation = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "image":
+                                player.Tanks.image = (string)reader.ReadElementContentAs(typeof(string), null);
+                                break;
+                            case "gun_penetration":
+                                player.Tanks.Guns.gun_penetration = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "top_speed":
+                                player.Tanks.top_speed = Int32.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+                            case "personal_win_rate":
+                                player.personal_win_rate = float.Parse((string)reader.ReadElementContentAs(typeof(string), null));
+                                break;
+
+                        }
+                }
+                reader.Close();
+            }
+            catch(Exception e)
+            {
+                throw new XMLTPlatoonProcessorException(e.Message);
+            }
+            this.tank_platoon = tp;
+            return true;
+
         }
 
     }

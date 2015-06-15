@@ -273,6 +273,8 @@
     <Content Include="App_Code\XMLTPlatoonCreatorException.cs" />
     <Content Include="App_Code\XMLTPlatoonProcessor.cs" />
     <Content Include="App_Code\XMLTPlatoonProcessorException.cs" />
+    <Content Include="App_Code\XMLProcessorLINQ.cs" />
+    <Content Include="App_Code\XMLCreatorLINQ.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
