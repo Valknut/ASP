@@ -39,5 +39,146 @@ namespace Tank_Platoons.App_Code
             tank_platoon.id = id;
         }
 
+        private void _GetPlatoonProperties()
+        {
+            tank_platoon.id = _GetAttributeValue(node, TankPlatoonElements.ROOT_ELEMENT_XPATH,TankPlatoonElements.TPLATOON_ID);
+            tank_platoon.name = _GetNodeValue(node, TankPlatoonElements.ROOT_ELEMENT_XPATH + "/" + TankPlatoonElements.TPLATOON_NAME);
+            tank_platoon.nation = _GetNodeValue(node, TankPlatoonElements.ROOT_ELEMENT_XPATH + "/" + TankPlatoonElements.TPLATOON_NATION);
+            tank_platoon.rating = Int32.Parse(_GetNodeValue(node, TankPlatoonElements.ROOT_ELEMENT_XPATH + "/" + TankPlatoonElements.TPLATOON_RATING));
+            tank_platoon.win_rate = float.Parse(_GetNodeValue(node, TankPlatoonElements.ROOT_ELEMENT_XPATH + "/" + TankPlatoonElements.TPLATOON_WIN_RATE));
+        }
+
+        private Tropheys _GetTrophey(XmlNode n)
+        {
+            Tropheys trophey = new Tropheys();
+            trophey.id = n.Attributes[TankPlatoonElements.TPLATOON_TROPHEY_ID].Value;
+            XmlNodeList nodes = n.ChildNodes;
+            foreach(XmlNode node in nodes)
+            {
+                switch(node.Name.ToString())
+                {
+                    case "year":
+                        trophey.year = Int32.Parse(node.InnerText);
+                        break;
+                    case "place":
+                        trophey.place = Int32.Parse(node.InnerText);
+                        break;
+                    case "league":
+                        XmlNode leaguenode = xml.SelectSingleNode(TankPlatoonElements.TPLATOON_LEAGUE_XPATH);
+                        trophey.Leagues.id = _GetAttributeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH, TankPlatoonElements.TPLATOON_LEAGUE_ID);
+                        trophey.Leagues.league_type = _GetAttributeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH, TankPlatoonElements.TPLATOON_LEAGUE_TYPE);
+                        trophey.Leagues.league_country = _GetNodeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH + "/" + TankPlatoonElements.TPLATOON_LEAGUE_COUNTRY);
+                        trophey.Leagues.league_name = _GetNodeValue(leaguenode, TankPlatoonElements.TPLATOON_LEAGUE_XPATH + "/" + TankPlatoonElements.TPLATOON_LEAGUE_NAME);
+                        break;
+
+                }
+            }
+            return trophey;
+        }
+
+        private void _GetTropheys()
+        {
+            XmlNodeList tropheyNodes = xml.GetElementsByTagName(TankPlatoonElements.TPLATOON_TROPHEY);
+            foreach(XmlNode node in tropheyNodes)
+            {
+                tank_platoon.Tropheys.Add(this._GetTrophey(node));
+            }
+        }
+
+        private Players _GetPlayer(XmlNode n)
+        {
+            Players player = new Players();
+            player.id = n.Attributes[TankPlatoonElements.TPLATOON_MEMBER_ID].Value;
+            player.gender = n.Attributes[TankPlatoonElements.TPLATOON_MEMBER_GENDER].Value;
+            player.g_strat_pos = n.Attributes[TankPlatoonElements.TPLATOON_MEMBER_STRAT_POS].Value;
+            player.platoon_position = n.Attributes[TankPlatoonElements.TPLATOON_MEMBER_PLATOON_POS].Value;
+            XmlNodeList nodes = n.ChildNodes;
+            foreach(XmlNode node in nodes)
+            {
+                switch(n.Name.ToString())
+                {
+                    case "first_name":
+                        player.first_name = node.InnerText;
+                        break;
+                    case "last_name":
+                        player.last_name = node.InnerText;
+                        break;
+                    case "nickname":
+                        player.nickname = node.InnerText;
+                        break;
+                    case "age":
+                        player.age = Int32.Parse(node.InnerText);
+                        break;
+                    case "date_of_birth":
+                        XmlNode date_node = xml.SelectSingleNode(TankPlatoonElements.TPLATOON_DATE_OF_BIRTH_XPATH);
+                        player.day = Int32.Parse(_GetNodeValue(date_node, TankPlatoonElements.TPLATOON_DATE_OF_BIRTH_XPATH + "/" + TankPlatoonElements.TPLATOON_DAY));
+                        player.month = Int32.Parse(_GetNodeValue(date_node,TankPlatoonElements.TPLATOON_DATE_OF_BIRTH_XPATH+"/"+TankPlatoonElements.TPLATOON_MONTH));
+                        player.birth_year = Int32.Parse(_GetNodeValue(date_node,TankPlatoonElements.TPLATOON_DATE_OF_BIRTH_XPATH+"/"+TankPlatoonElements.TPLATOON_BIRTH_YEAR));
+                        break;
+                    case "country":
+                        player.country = node.InnerText;
+                        break;
+                    case "tank":
+                        XmlNode tank_node = xml.SelectSingleNode(TankPlatoonElements.TPLATOON_TANK_XPATH);
+                        player.Tanks.id = _GetAttributeValue(tank_node,TankPlatoonElements.TPLATOON_TANK_XPATH, TankPlatoonElements.TPLATOON_TANK_ID);
+                        player.Tanks.type = _GetAttributeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH, TankPlatoonElements.TPLATOON_TANK_TYPE);
+                        player.Tanks.Guns.ammo_type = _GetAttributeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH, TankPlatoonElements.TPLATOON_AMMO_TYPE);
+                        player.Tanks.Guns.gun_penetration = Int32.Parse(_GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_GUN_PENETRATION));
+                        player.Tanks.tank_name = _GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_TANK_NAME);
+                        player.Tanks.tank_nation = _GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_TANK_NATION);
+                        player.Tanks.tier = Int32.Parse(_GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_TIER));
+                        player.Tanks.image = _GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_IMAGE);
+                        player.Tanks.top_speed = Int32.Parse(_GetNodeValue(tank_node, TankPlatoonElements.TPLATOON_TANK_XPATH + "/" + TankPlatoonElements.TPLATOON_TOP_SPEED));
+                        break;
+                    case "personal_win_rate":
+                        player.personal_win_rate = Int32.Parse(node.InnerText);
+                        break;
+                }
+            }
+            return player;
+        }
+
+        private void _GetPlayers()
+        {
+            XmlNodeList playerNodes = xml.GetElementsByTagName(TankPlatoonElements.TPLATOON_MEMBER);
+            foreach(XmlNode node in playerNodes)
+            {
+                tank_platoon.Players.Add(this._GetPlayer(node));
+            }
+        }
+
+        public bool LoadTPlatoonFromXML(string path)
+        {
+            try
+            {
+                XMLValidator val = new XMLValidator();
+                val.Validate(path);
+                
+                this.path = path;
+
+                _LoadXML(path);
+                _InitTankPlatoon();
+                _GetTropheys();
+                _GetPlayers();
+            }
+            catch (Exception e)
+            {
+                throw new XMLTPlatoonProcessorException(e.Message);
+            }
+
+            return true;
+        }
+
+        public Tank_Platoons Tank_Platoon
+        {
+            get
+            {
+                if (tank_platoon != null)
+                    return this.tank_platoon;
+                else throw new XMLTPlatoonProcessorException("You must first call the \"LoadTankPlatoonFromXML(string path)\"" +
+                " or \"LoadTankPlatoonFromXMLUsingReader(string path)\" method for your XMLTankPlatoonProcessor object!");
+            }
+        }
+
     }
 }

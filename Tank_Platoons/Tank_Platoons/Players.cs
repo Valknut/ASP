@@ -27,6 +27,8 @@ namespace Tank_Platoons
         public Nullable<int> day { get; set; }
         public Nullable<int> month { get; set; }
         public Nullable<int> birth_year { get; set; }
+        public string nickname { get; set; }
+        public string country { get; set; }
     
         public virtual Tank_Platoons Tank_Platoons { get; set; }
         public virtual Tanks Tanks { get; set; }
